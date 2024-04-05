@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/Views/add_task_view.dart';
 import 'package:task_manager/Views/principal_view.dart';
 import 'package:task_manager/Views/tasks_view.dart';
 
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: false,
       ),
       // home: const PrincipalView(),
-      home: const TasksView(),
+      // home: const TasksView(),
+      home: const AddTaskView(isAdd: true),
     );
   }
 }

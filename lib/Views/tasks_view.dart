@@ -149,7 +149,7 @@ class _TasksViewState extends State<TasksView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              image(),
+              image(true),
               const SizedBox(height: 10),
               SizedBox(
                 width: 150,
@@ -168,12 +168,12 @@ class _TasksViewState extends State<TasksView> {
           top = 0;
           left = null;
           right = 15;
-          child = image();
+          child = image(false);
         }else{
           top = 0;
           left = null;
           right = 15;
-          child = image();
+          child = image(false);
         }
         return Positioned(
           top: top,
@@ -185,11 +185,11 @@ class _TasksViewState extends State<TasksView> {
     );
   }
 
-  image(){
+  image(bool isEmpty){
     return Image.asset(
       'assets/images/task_icon.png',
-      width: 80,
-      color:  Colors.white,
+      width: isEmpty ? 150 : 80,
+      color: isEmpty ? Colors.blue[200]!.withOpacity(0.5) : Colors.white,
       fit: BoxFit.fitWidth,
     );
   }
