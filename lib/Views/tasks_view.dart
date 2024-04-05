@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Components/card_component.dart';
@@ -28,47 +30,63 @@ class _TasksViewState extends State<TasksView> {
   @override
   void initState() {
     super.initState();
-    // getDataController.addTask(
-    //   task: Task(
-    //     token: 'SoteloChopinUlisesShie',
-    //     title: 'Obtener mensaje',
-    //     isCompleted: 1,
-    //     // formato de fecha YYYY-MM-DD
-    //     dueDate: DateTime.now().toString().split(' ')[0],
-    //     comments: '',
-    //     description: 'Obtener el mensaje de confirmacion',
-    //     tags: '',
-    //   )
-    // );
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   getDataController.addTask(
+    //     task: Task(
+    //       token: 'SoteloChopinUlisesShie',
+    //       title: 'Obtener mensaje',
+    //       isCompleted: 1,
+    //       dueDate: DateTime.now().toString().split(' ')[0],
+    //       comments: '',
+    //       description: 'Obtener el mensaje de confirmacion',
+    //       tags: '',
+    //     ),
+    //     context: context
+    //   ); 
+    // });
 
     // getDataController.updateTask(
     //   task: Task(
     //     taskId: 1913,
     //     token: 'SoteloChopinUlisesShie',
     //     title: 'Actualizar task',
-    //     isCompleted: 0,
-    //     // formato de fecha YYYY-MM-DD
+    //     isCompleted: 1,
     //     dueDate: DateTime.now().toString().split(' ')[0],
     //     comments: '',
     //     description: 'Actualizar task',
     //     tags: '',
     //   )
     // );
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   getDataController.deleteTask(
+    //     task: Task(
+    //       taskId: 1921,
+    //       token: 'SoteloChopinUlisesShie',
+    //       title: 'Actualizar task',
+    //       isCompleted: 1,), 
+    //     context: context
+    //   );
+    // });
+    
 
     getDataController.getTasks(token: 'SoteloChopinUlisesShie');
   }
 
-  void onDelete(int index) {
-    print('Delete');
+  onDelete(int index, Task task) async {
+
+    task.token = 'SoteloChopinUlisesShie'; 
+    await getDataController.deleteTask(task: task, context: context);
+
+    getDataController.getDataModelTask.value.tasks.removeAt(index);
   }
 
   void onEdit(BuildContext context){
     print('Edit');
   }
 
-  void onDetails(int index){
+  void onDetails(Task task){
 
-    print(getDataController.getDataModelTask.value.tasks[index].taskId);
+    print(task.taskId);
   }
 
   // metodo para obtener el ancho y el largo de la pantalla
@@ -242,14 +260,15 @@ class _TasksViewState extends State<TasksView> {
           itemCount: getDataController.getDataModelTask.value.tasks.length,
           itemBuilder: (context, index){
             final task = getDataController.getDataModelTask.value.tasks[index];
+            // print(task.taskId);
             return CardComponent(
               taskId: task.taskId!,
               title: task.title,
               description: task.description,
-              onDelete:()=> onDelete(index),
+              onDelete:()=> onDelete(index,task),
               onEdit: (context)=> onEdit(context),
-              onDetails: ()=> onDetails(index),
-              check: cardCheckCompleted(index),
+              onDetails: ()=> onDetails(task),
+              check: cardCheckCompleted(task),
             );
           },
         ),
@@ -257,17 +276,19 @@ class _TasksViewState extends State<TasksView> {
     );
   }
 
-  cardCheckCompleted(int index){
+  cardCheckCompleted(Task task){
     return IconButton(
       padding: const EdgeInsets.only(left: 15),
       onPressed: (){
         setState(() {
-          getDataController.getDataModelTask.value.tasks[index].isCompleted = getDataController.getDataModelTask.value.tasks[index].isCompleted == 0 ? 1 : 0;
+          task.isCompleted = task.isCompleted == 0 ? 1 : 0;
+          task.token = 'SoteloChopinUlisesShie';
         });
+        getDataController.updateTask(task: task, context: context);
       },
       icon: Icon(
-        getDataController.getDataModelTask.value.tasks[index].isCompleted > 0 ? Icons.check_circle : Icons.check_circle_outline,
-        color: getDataController.getDataModelTask.value.tasks[index].isCompleted > 0 ? Colors.green : Colors.blue[800],
+        task.isCompleted > 0 ? Icons.check_circle : Icons.check_circle_outline,
+        color: task.isCompleted > 0 ? Colors.green : Colors.blue[800],
         size: 35,
       ),
     );

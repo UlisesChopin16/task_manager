@@ -63,15 +63,16 @@ class CardComponent extends StatelessWidget {
       onTap: onDetails,
       child: Slidable(
         // Specify a key if the Slidable is dismissible.
-        key: ValueKey(taskId),
+        key: Key(taskId.toString()),
         endActionPane: ActionPane(
           // A motion is a widget used to control how the pane animates.
-          motion: const DrawerMotion(),
+          motion: const StretchMotion(),
           // All actions are defined in the children parameter.
           children: [
             // A SlidableAction can have an icon and/or a label.
             SlidableAction(
               onPressed: onEdit,
+              borderRadius: BorderRadius.circular(20),
               backgroundColor: Colors.green[400]!,
               foregroundColor: Colors.white,
               flex: 2,
@@ -83,17 +84,18 @@ class CardComponent extends StatelessWidget {
         // The start action pane is the one at the left or the top side.
         startActionPane: ActionPane(
           // A motion is a widget used to control how the pane animates.
-          motion: const DrawerMotion(),
+          motion: const StretchMotion(),
 
           // A pane can dismiss the Slidable.
           dismissible: DismissiblePane(onDismissed: onDelete),
       
           // All actions are defined in the children parameter.
-          children: const [
+          children: [
             // A SlidableAction can have an icon and/or a label.
             SlidableAction(
               onPressed: null,
-              backgroundColor: Color(0xFFFE4A49),
+              borderRadius: BorderRadius.circular(20),
+              backgroundColor: const Color(0xFFFE4A49),
               foregroundColor: Colors.white,
               icon: Icons.delete,
             ),

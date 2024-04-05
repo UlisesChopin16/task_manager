@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Models/task_model.dart';
 import 'package:dio/dio.dart';
@@ -31,7 +33,32 @@ class TaskController extends GetxController{
   rutaURL(String ruta) => 
     'https://ecsdevapi.nextline.mx/vdev/tasks-challenge/tasks$ruta';
 
+  snackBarCharging({
+    required String message,
+    required BuildContext context,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 
+  snackBarSucces({required String message, required BuildContext context}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      )
+    );
+  }
+
+  snackBarError({required String message, required BuildContext context}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      )
+    );
+  }
+
+  // metodo para obtener la lista de Tareas
   Future<void> getTasks({required String token}) async {
     try {
       // activamos el isLoading
@@ -39,18 +66,24 @@ class TaskController extends GetxController{
 
       // hacemos la peticion a la api
       var response = await dio.get(
-        // nombre de la api
+        // url de la Api
         rutaURL(''),
+
+        // enviamos los datos de los parametros
         data: {
           'token' : token
         },
+
+        // enviamos los headers
         options: auth
 
       );
 
-      String jsonString = '{"Tasks":${json.encode(response.data)}}';
+      final jsonEncode = await compute(json.encode, response.data);
 
-      getDataModelTask.value = getModelTasksFromJson(jsonString);
+      String jsonString = '{"Tasks":$jsonEncode}';
+
+      getDataModelTask.value = await compute(getModelTasksFromJson, jsonString);
 
 
     }catch(e){
@@ -61,18 +94,22 @@ class TaskController extends GetxController{
     }
   }
 
+  // metodo para agregar una tarea
   Future<void> addTask({
     required Task task,
+    required BuildContext context,
   }) async {
     try {
       // activamos el isLoading
-      isLoading.value = true;
+      snackBarCharging(message: 'Agregando Tarea...', context: context);
 
       // hacemos la peticion a la api
       var response = await dio.post(
-        // nombre de la api
+        // url de la Api
         rutaURL(''),
+        // enviamos los headers
         options: headerAuth,
+        // enviamos los datos
         data: {
           'token' : task.token,
           'title' : task.title,
@@ -84,33 +121,42 @@ class TaskController extends GetxController{
         },
       );
 
-
+      // convertimos la respuesta a un json
       final jsonEncode = json.encode(response.data);
 
+      // convertimos el json a un string
       final jsonString = json.decode(jsonEncode);
       
+      // asignamos el mensaje de la respuesta a la variable details
       details.value = jsonString['detail'].toString();
 
+      if(!context.mounted) return;
+
     }catch(e){
-      print(e);
+      snackBarError(message: e.toString(), context: context);
     }
     finally{
-      isLoading.value = false;
+      snackBarSucces(message: details.value, context: context);
     }
   }
 
+  // metodo para actualizar una tarea
   Future<void> updateTask({
     required Task task,
+    required BuildContext context,
   }) async {
     try {
-      // activamos el isLoading
-      isLoading.value = true;
+      
+      // Lanzamos un mensaje de carga
+      snackBarCharging(message: 'Actualizando Tarea...', context: context);
 
       // hacemos la peticion a la api
       var response = await dio.put(
-        // nombre de la api
+        // url de la Api
         rutaURL('/${task.taskId}'),
+        // enviamos los headers
         options: headerAuth,
+        // enviamos los datos de los parametros
         data: {
           'token' : task.token,
           'title' : task.title,
@@ -119,22 +165,70 @@ class TaskController extends GetxController{
           'comments' : task.comments,
           'description': task.description,
           'tags' : task.tags,
+        },
+      );
+      
+      // convertimos la respuesta a un json
+      final jsonEncode = json.encode(response.data);
+
+      // convertimos el json a un string
+      final jsonString = json.decode(jsonEncode);
+      
+      // asignamos el mensaje de la respuesta a la variable details
+      details.value = jsonString['detail'].toString();
+
+      // si el contexto no esta montado no hacemos nada
+      // para evitar errores cuando se trabaja dentro de async
+      if(!context.mounted) return;
+
+    }catch(e){
+      // Lanzamos un mensaje de error
+      snackBarError(message: e.toString(), context: context);
+    }
+    finally{
+      // Lanzamos un mensaje de exito
+      snackBarSucces(message: details.value, context: context);
+    }
+  }
+
+  Future<void> deleteTask({
+    required Task task,
+    required BuildContext context,
+  }) async {
+    try {
+      // Lanzamos un mensaje de carga
+      snackBarCharging(message: 'Eliminando Tarea...', context: context);
+      
+
+      // hacemos la peticion a la api
+      var response = await dio.delete(
+        // url de la Api
+        rutaURL('/${task.taskId}'),
+        options: auth,
+        data: {
+          'token' : task.token,
         },
       );
 
       print(response.data);
 
+      // convertimos la respuesta a un json
       final jsonEncode = json.encode(response.data);
 
+      // convertimos el json a un string
       final jsonString = json.decode(jsonEncode);
       
+      // asignamos el mensaje de la respuesta a la variable details
       details.value = jsonString['detail'].toString();
 
+      if(!context.mounted) return;
     }catch(e){
-      print(e);
+      // Lanzamos un mensaje de error
+      snackBarError(message: e.toString(), context: context);
     }
     finally{
-      isLoading.value = false;
+      // Lanzamos un mensaje de exito
+      snackBarSucces(message: details.value, context: context);
     }
   }
 
