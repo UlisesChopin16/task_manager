@@ -366,6 +366,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(titleBar),
+        centerTitle: true,
         actions: [
           if(!widget.isAdd)
             IconButton(

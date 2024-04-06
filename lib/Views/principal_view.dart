@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/Views/tasks_view.dart';
+import 'package:task_manager/Views/tutorial_view.dart';
 
 class PrincipalView extends StatefulWidget {  
   const PrincipalView({ Key? key }) : super(key: key);
@@ -115,7 +116,7 @@ class _PrincipalViewState extends State<PrincipalView> {
       onPressed: () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const TasksView()
+            builder: (context) => const TutorialView()
           ),
         );
       },

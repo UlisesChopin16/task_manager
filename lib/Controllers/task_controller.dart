@@ -15,6 +15,8 @@ class TaskController extends GetxController{
   var isLoading = false.obs;
   var listChange = false.obs;
 
+  var isCompleted = 0.obs;
+
   final dio = Dio();
 
   Options auth = Options(

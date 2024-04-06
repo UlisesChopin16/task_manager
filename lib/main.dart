@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Views/principal_view.dart';
+import 'package:task_manager/Views/tasks_view.dart';
+import 'package:task_manager/Views/tutorial_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +21,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: false,
       ),
-      home: const PrincipalView(),
+      // home: const PrincipalView(),
+      home: const TutorialView(),
+      // home: const TasksView(),
     );
   }
 }

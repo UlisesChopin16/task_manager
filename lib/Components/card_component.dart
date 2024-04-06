@@ -5,6 +5,9 @@ import 'package:task_manager/Models/task_model.dart';
 import 'package:task_manager/Views/add_task_view.dart';
 class CardComponent extends StatelessWidget {
 
+  final SlidableController? slidableController;
+
+  final bool isEnable;
 
   /// put the taskId of the task
   final Task task;
@@ -31,6 +34,9 @@ class CardComponent extends StatelessWidget {
     required this.confirmDismiss,
     required this.onClosed,
     required this.confirmDelete,
+    required this.isEnable,
+    this.slidableController,
+    
     Key? key 
   }) : super(key: key);
 
@@ -52,7 +58,7 @@ class CardComponent extends StatelessWidget {
         closedBuilder: (context, openContainer){
           return slidableCard(
             taskId: task.taskId!, 
-            onTap: openContainer,
+            onTap: isEnable ? openContainer : (){},
             onEdit: (context) => openContainer(),
             child: cardTask( 
               title: task.title, 
@@ -78,6 +84,7 @@ class CardComponent extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Slidable(
+        controller: slidableController,
         // Specify a key if the Slidable is dismissible.
         key: Key(taskId.toString()),
         endActionPane: actionPane(),

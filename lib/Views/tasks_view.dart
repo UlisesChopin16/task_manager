@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Components/card_component.dart';
 import 'package:task_manager/Controllers/task_controller.dart';
@@ -15,8 +16,9 @@ class TasksView extends StatefulWidget {
   State<TasksView> createState() => _TasksViewState();
 }
 
-class _TasksViewState extends State<TasksView> {
+class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
 
+   List<SlidableController> slidableControllers = [];
 
   final  getDataController = Get.put(TaskController());
 
@@ -94,6 +96,9 @@ class _TasksViewState extends State<TasksView> {
   void confirmDelete(int index, Task task) async {
     bool response = await confirmDismiss();
     if(response){
+      slidableControllers[index].dismiss(
+        ResizeRequest(const Duration(milliseconds: 300), () { }),
+      );
       onDelete(index, task);
     }
   }
@@ -293,8 +298,11 @@ class _TasksViewState extends State<TasksView> {
             itemBuilder: (context, index){
               final task = getDataController.getDataModelTask.value.tasks[index];
               task.token = 'SoteloChopinUlisesShie';
+              slidableControllers.add(SlidableController(this));
               return CardComponent(
+                slidableController: slidableControllers[index],
                 task: task,
+                isEnable: true,
                 onClosed: (never)=> onClosed(never),
                 onDelete:()=> onDelete(index,task),
                 confirmDismiss: confirmDismiss,
