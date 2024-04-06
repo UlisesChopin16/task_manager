@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: false,
       ),
       // home: const PrincipalView(),
-      // home: const TasksView(),
-      home: const AddTaskView(isAdd: true),
+      home: const TasksView(),
+      // home: const AddTaskView(isAdd: true),
     );
   }
 }

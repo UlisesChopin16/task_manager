@@ -94,6 +94,47 @@ class TaskController extends GetxController{
     }
   }
 
+  // metodo para obtener la lista de Tareas
+  Future<Task> getTask({
+    required Task task,
+  }) async {
+    Task nTask = Task(title: '', isCompleted: 0);
+    try {
+      // activamos el isLoading
+      isLoading.value = true;
+
+      // hacemos la peticion a la api
+      var response = await dio.get(
+        // url de la Api
+        rutaURL('/${task.taskId}'),
+
+        // enviamos los datos de los parametros
+        data: {
+          'token' : task.token
+        },
+
+        // enviamos los headers
+        options: auth
+
+      );
+      final jsonEncode = await compute(json.encode, response.data);
+
+      String jsonString = '{"Tasks":$jsonEncode}';
+
+      GetModelTasks getTask = await compute(getModelTasksFromJson, jsonString);
+      
+      // asignamos la tarea a la variable nTask
+      nTask = getTask.tasks[0];
+
+    }catch(e){
+      print(e);
+    }
+    finally{
+      isLoading.value = false;
+    }
+    return nTask;
+  }
+
   // metodo para agregar una tarea
   Future<void> addTask({
     required Task task,

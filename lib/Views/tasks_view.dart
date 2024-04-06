@@ -73,8 +73,6 @@ class _TasksViewState extends State<TasksView> {
   }
 
   onDelete(int index, Task task) async {
-
-    task.token = 'SoteloChopinUlisesShie'; 
     await getDataController.deleteTask(task: task, context: context);
 
     getDataController.getDataModelTask.value.tasks.removeAt(index);
@@ -84,9 +82,8 @@ class _TasksViewState extends State<TasksView> {
     print('Edit');
   }
 
-  void onDetails(Task task){
-
-    print(task.taskId);
+  void onDetails(Task task, int index){
+    getDataController.getTask(task: task);
   }
 
   // metodo para obtener el ancho y el largo de la pantalla
@@ -260,14 +257,11 @@ class _TasksViewState extends State<TasksView> {
           itemCount: getDataController.getDataModelTask.value.tasks.length,
           itemBuilder: (context, index){
             final task = getDataController.getDataModelTask.value.tasks[index];
-            // print(task.taskId);
+            task.token = 'SoteloChopinUlisesShie';
             return CardComponent(
-              taskId: task.taskId!,
-              title: task.title,
-              description: task.description,
+              task: task,
               onDelete:()=> onDelete(index,task),
               onEdit: (context)=> onEdit(context),
-              onDetails: ()=> onDetails(task),
               check: cardCheckCompleted(task),
             );
           },
@@ -282,7 +276,6 @@ class _TasksViewState extends State<TasksView> {
       onPressed: (){
         setState(() {
           task.isCompleted = task.isCompleted == 0 ? 1 : 0;
-          task.token = 'SoteloChopinUlisesShie';
         });
         getDataController.updateTask(task: task, context: context);
       },

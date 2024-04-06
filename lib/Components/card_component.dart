@@ -1,15 +1,12 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:task_manager/Models/task_model.dart';
+import 'package:task_manager/Views/add_task_view.dart';
 class CardComponent extends StatelessWidget {
 
   /// put the taskId of the task
-  final int taskId;
-
-  /// put the title of the task
-  final String title;
-
-  /// put the description of the task 
-  final String? description;
+  final Task task;
 
   /// put the check widget in the check parameter
   final Widget check;
@@ -21,17 +18,13 @@ class CardComponent extends StatelessWidget {
   final void Function(BuildContext)? onEdit;
 
   /// function to go to the task details
-  final void Function() onDetails;
 
 
   const CardComponent({
-    required this.taskId,
-    required this.title,
+    required this.task,
     required this.check,
     required this.onDelete,
     required this.onEdit,
-    required this.onDetails,
-    this.description,
     Key? key 
   }) : super(key: key);
 
@@ -43,13 +36,27 @@ class CardComponent extends StatelessWidget {
         horizontal: 10,
         vertical: 2
       ),
-      child: slidableCard(
-        taskId: taskId, 
-        child: cardTask( 
-          title: title, 
-          description: description ?? 'Sin descripción', 
-          check: check
-        )
+      child: OpenContainer(
+        transitionDuration: const Duration(milliseconds: 500),
+        transitionType: ContainerTransitionType.fadeThrough,
+        openElevation: 0,
+        middleColor: Colors.white,
+        closedColor: Colors.transparent,
+        closedElevation: 0,
+        closedBuilder: (context, openContainer){
+          return slidableCard(
+            taskId: task.taskId!, 
+            onTap: openContainer,
+            child: cardTask( 
+              title: task.title, 
+              description: task.dueDate ?? 'Sin descripción', 
+              check: check
+            )
+          );
+        },
+        openBuilder: (context, closeContainer){
+          return AddTaskView(isAdd: false, task: task,);
+        },
       ),
     );
   }
@@ -57,10 +64,11 @@ class CardComponent extends StatelessWidget {
 
   Widget slidableCard({
     required int taskId,
+    required void Function()? onTap,
     required Widget child
   }){
     return InkWell(
-      onTap: onDetails,
+      onTap: onTap,
       child: Slidable(
         // Specify a key if the Slidable is dismissible.
         key: Key(taskId.toString()),
@@ -115,8 +123,8 @@ class CardComponent extends StatelessWidget {
     }
   ){
     return Card(
-      elevation: 3,
-      color: Colors.blue[50],
+      elevation: 3.5,
+      color: Colors.blue[50]!,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20)
       ),
@@ -178,7 +186,7 @@ class CardComponent extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         fontSize: fontSize,
-        color: Colors.blue[700],
+        color: Colors.blue[800],
       ),
     );
   }
