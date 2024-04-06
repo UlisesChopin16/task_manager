@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:task_manager/Views/add_task_view.dart';
 import 'package:task_manager/Views/principal_view.dart';
-import 'package:task_manager/Views/tasks_view.dart';
 
 void main() {
   runApp(const MyApp());

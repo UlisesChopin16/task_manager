@@ -1,6 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Components/card_component.dart';
 import 'package:task_manager/Controllers/task_controller.dart';
@@ -57,7 +56,46 @@ class _TasksViewState extends State<TasksView> {
 
     getDataController.getDataModelTask.value.tasks.removeAt(index);
     getDataController.getDataModelTask.refresh();
-    // setState(() {});
+  }
+
+  Future<bool> confirmDismiss() async {
+    return await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context){
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          titleTextStyle:  TextStyle(
+            color: Colors.blue[900],
+            fontSize: 20, 
+          ),
+          title: const Text('¿Estás seguro de eliminar la tarea?'),
+          actions: [
+            TextButton(
+              onPressed: (){
+                Navigator.pop(context, false);
+              }, 
+              child: const Text('Cancelar')
+            ),
+            TextButton(
+              onPressed: (){
+                Navigator.pop(context, true);
+              }, 
+              child: const Text('Eliminar')
+            )
+          ],
+        );
+      }
+    );
+  } 
+
+  void confirmDelete(int index, Task task) async {
+    bool response = await confirmDismiss();
+    if(response){
+      onDelete(index, task);
+    }
   }
 
 
@@ -259,6 +297,8 @@ class _TasksViewState extends State<TasksView> {
                 task: task,
                 onClosed: (never)=> onClosed(never),
                 onDelete:()=> onDelete(index,task),
+                confirmDismiss: confirmDismiss,
+                confirmDelete: (context)=> confirmDelete(index, task),
                 check: cardCheckCompleted(task,index),
               );
             },

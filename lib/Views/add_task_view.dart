@@ -20,6 +20,8 @@ class AddTaskView extends StatefulWidget {
   State<AddTaskView> createState() => _AddTaskViewState();
 }
 
+enum TaskAction {add, update, delete}
+
 class _AddTaskViewState extends State<AddTaskView> {
 
   final getDataController = Get.put(TaskController());
@@ -35,6 +37,8 @@ class _AddTaskViewState extends State<AddTaskView> {
   double top = 0;
   double? right = 15;
   double? left;
+
+  
 
   FocusNode focusNodeTitle = FocusNode();
   FocusNode focusNodeDescription = FocusNode();
@@ -197,7 +201,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     });
   }
 
-  void onPressed(){
+  void onPressed()async {
     final FocusScopeNode focus = FocusScope.of(context);
     if (!focus.hasPrimaryFocus && focus.hasFocus) {
       FocusManager.instance.primaryFocus?.unfocus();
@@ -205,60 +209,149 @@ class _AddTaskViewState extends State<AddTaskView> {
 
     if(_formKey.currentState!.validate()){
       if(widget.isAdd){
-        if(date.isEmpty){
-          date = DateTime.now().toString().split(' ')[0];
-        }
-        getDataController.addTask(
-          task: Task(
-            token: 'SoteloChopinUlisesShie',
-            isCompleted: completed,
-            title: title,
-            description: description,
-            comments: comments,
-            dueDate: date,
-            tags: tags
-          ),
-          context: context
-        );
-
-        titleController.clear();
-        descriptionController.clear();
-        commentsController.clear();
-        dateController.clear();
-        tagsController.clear();
-        completed = 0;
-        isEditing = false;
+        
+        await confirmDialog(TaskAction.add);
 
       }else{
 
-        
-
-        getDataController.updateTask(
-          task: Task(
-            taskId: task.taskId,
-            token: 'SoteloChopinUlisesShie',
-            isCompleted: completed,
-            title: title,
-            description: description,
-            comments: comments,
-            dueDate: date,
-            tags: tags
-          ),
-          context: context
-        );
-
-        titleCompare = title;
-        descriptionCompare = description;
-        commentsCompare = comments;
-        dateCompare = date;
-        tagsCompare = tags;
-        completedCompare = completed;
+        await confirmDialog(TaskAction.update);
 
       }
       getDataController.listChange.value = true;
       setState(() {});
     }
 
+  }
+
+   confirmDialog(TaskAction action) async {
+    String titleDialog = '';
+    String textButtonDialog = '';
+    VoidCallback onPressedDialog = (){};
+    switch (action) {
+      case TaskAction.add:
+        titleDialog = '¿Estás seguro de agregar la tarea?';
+        textButtonDialog = 'Agregar';
+        onPressedDialog = addTask;
+        break;
+      case TaskAction.update:
+        titleDialog = '¿Estás seguro de actualizar la tarea?';
+        textButtonDialog = 'Actualizar';
+        onPressedDialog = updateTask;
+        break;
+      case TaskAction.delete:
+        titleDialog = '¿Estás seguro de eliminar la tarea?';
+        textButtonDialog = 'Eliminar';
+        onPressedDialog = deleteTask;
+        break;
+    }
+
+    await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context){
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          titleTextStyle:  TextStyle(
+            color: Colors.blue[900],
+            fontSize: 20, 
+          ),
+          title: Text(titleDialog),
+          actions: [
+            TextButton(
+              onPressed: (){
+                Navigator.pop(context,);
+              }, 
+              child: const Text('Cancelar')
+            ),
+            TextButton(
+              onPressed: onPressedDialog, 
+              child: Text(textButtonDialog)
+            )
+          ],
+        );
+      }
+    );
+  } 
+
+  addTask()async{
+    if(date.isEmpty){
+      date = DateTime.now().toString().split(' ')[0];
+    }
+    getDataController.addTask(
+      task: Task(
+        token: 'SoteloChopinUlisesShie',
+        isCompleted: completed,
+        title: title,
+        description: description,
+        comments: comments,
+        dueDate: date,
+        tags: tags
+      ),
+      context: context
+    );
+
+    titleController.clear();
+    descriptionController.clear();
+    commentsController.clear();
+    dateController.clear();
+    tagsController.clear();
+    completed = 0;
+    isEditing = false;
+
+    setState(() {});
+
+    Navigator.of(context).pop();
+  }
+
+  updateTask(){
+    isEditing = false;
+    getDataController.updateTask(
+      task: Task(
+        taskId: task.taskId,
+        token: 'SoteloChopinUlisesShie',
+        isCompleted: completed,
+        title: title,
+        description: description,
+        comments: comments,
+        dueDate: date,
+        tags: tags
+      ),
+      context: context
+    );
+
+    titleCompare = title;
+    descriptionCompare = description;
+    commentsCompare = comments;
+    dateCompare = date;
+    tagsCompare = tags;
+    completedCompare = completed;
+
+    setState(() {});
+
+    Navigator.of(context).pop();
+  }
+
+  deleteTask() async {
+    getDataController.isLoading.value = true;
+    await getDataController.deleteTask(
+      task: task,
+      context: context
+    );
+    getDataController.isLoading.value = false;
+    getDataController.listChange.value = true;
+
+    titleController.clear();
+    descriptionController.clear();
+    commentsController.clear();
+    dateController.clear();
+    tagsController.clear();
+    completed = 0;
+
+    if(!context.mounted) return;
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
   // metodo para obtener el ancho y el largo de la pantalla
@@ -277,22 +370,7 @@ class _AddTaskViewState extends State<AddTaskView> {
           if(!widget.isAdd)
             IconButton(
               onPressed: () async {
-                getDataController.isLoading.value = true;
-                await getDataController.deleteTask(
-                  task: task,
-                  context: context
-                );
-                getDataController.isLoading.value = false;
-                getDataController.listChange.value = true;
-
-                titleController.clear();
-                descriptionController.clear();
-                commentsController.clear();
-                dateController.clear();
-                tagsController.clear();
-                completed = 0;
-
-                Navigator.pop(context);
+                await confirmDialog(TaskAction.delete);
               },
               icon: const Icon(Icons.delete),
             )

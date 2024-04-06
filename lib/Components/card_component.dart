@@ -5,6 +5,7 @@ import 'package:task_manager/Models/task_model.dart';
 import 'package:task_manager/Views/add_task_view.dart';
 class CardComponent extends StatelessWidget {
 
+
   /// put the taskId of the task
   final Task task;
 
@@ -14,16 +15,22 @@ class CardComponent extends StatelessWidget {
   /// function to delete the task
   final void Function() onDelete;
 
-  /// function to edit the task
-
   /// function for the onClosed event
   final void Function(Never?)? onClosed;
+
+  /// function to confirm the dismiss
+  final Future<bool> Function()? confirmDismiss;
+
+  /// function to confirm the delete
+  final void Function(BuildContext)? confirmDelete;
 
   const CardComponent({
     required this.task,
     required this.check,
     required this.onDelete,
+    required this.confirmDismiss,
     required this.onClosed,
+    required this.confirmDelete,
     Key? key 
   }) : super(key: key);
 
@@ -73,7 +80,6 @@ class CardComponent extends StatelessWidget {
       child: Slidable(
         // Specify a key if the Slidable is dismissible.
         key: Key(taskId.toString()),
-        
         endActionPane: actionPane(),
 
         // The start action pane is the one at the left or the top side.
@@ -90,13 +96,17 @@ class CardComponent extends StatelessWidget {
       motion: const StretchMotion(),
 
       // A pane can dismiss the Slidable.
-      dismissible: DismissiblePane(onDismissed: onDelete),
+      dismissible: DismissiblePane(
+        onDismissed: onDelete,
+        confirmDismiss: confirmDismiss,
+        closeOnCancel: true,
+      ),
   
       // All actions are defined in the children parameter.
       children: [
         // A SlidableAction can have an icon and/or a label.
         SlidableAction(
-          onPressed: null,
+          onPressed: confirmDelete,
           borderRadius: BorderRadius.circular(20),
           backgroundColor: const Color(0xFFFE4A49),
           foregroundColor: Colors.white,
