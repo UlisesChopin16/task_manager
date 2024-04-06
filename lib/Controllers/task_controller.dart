@@ -13,6 +13,7 @@ class TaskController extends GetxController{
   var details = ''.obs; 
 
   var isLoading = false.obs;
+  var listChange = false.obs;
 
   final dio = Dio();
 
@@ -81,7 +82,7 @@ class TaskController extends GetxController{
 
       final jsonEncode = await compute(json.encode, response.data);
 
-      String jsonString = '{"Tasks":$jsonEncode}';
+      String jsonString = '{"task":$jsonEncode}';
 
       getDataModelTask.value = await compute(getModelTasksFromJson, jsonString);
 
@@ -119,7 +120,7 @@ class TaskController extends GetxController{
       );
       final jsonEncode = await compute(json.encode, response.data);
 
-      String jsonString = '{"Tasks":$jsonEncode}';
+      String jsonString = '{"task":$jsonEncode}';
 
       GetModelTasks getTask = await compute(getModelTasksFromJson, jsonString);
       
@@ -189,7 +190,7 @@ class TaskController extends GetxController{
     try {
       
       // Lanzamos un mensaje de carga
-      snackBarCharging(message: 'Actualizando Tarea...', context: context);
+      isLoading.value = true;
 
       // hacemos la peticion a la api
       var response = await dio.put(
@@ -228,6 +229,7 @@ class TaskController extends GetxController{
     }
     finally{
       // Lanzamos un mensaje de exito
+      isLoading.value = false;
       snackBarSucces(message: details.value, context: context);
     }
   }
@@ -250,8 +252,6 @@ class TaskController extends GetxController{
           'token' : task.token,
         },
       );
-
-      print(response.data);
 
       // convertimos la respuesta a un json
       final jsonEncode = json.encode(response.data);

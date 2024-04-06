@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager/Views/tasks_view.dart';
 
@@ -6,7 +5,7 @@ class PrincipalView extends StatefulWidget {
   const PrincipalView({ Key? key }) : super(key: key);
 
   @override
-  _PrincipalViewState createState() => _PrincipalViewState();
+  State<PrincipalView> createState() => _PrincipalViewState();
 }
 
 class _PrincipalViewState extends State<PrincipalView> {
@@ -114,18 +113,20 @@ class _PrincipalViewState extends State<PrincipalView> {
   startButton() {
     return ElevatedButton(
       onPressed: () {
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const TasksView()
           ),
         );
       },
       style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
         foregroundColor: Colors.blue[900],
         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
         textStyle: const TextStyle(
-          fontSize: 20,
+          fontSize: 24,
         ),
+        elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20)
         )

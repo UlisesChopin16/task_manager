@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Components/input_component.dart';
@@ -19,7 +17,7 @@ class AddTaskView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AddTaskViewState createState() => _AddTaskViewState();
+  State<AddTaskView> createState() => _AddTaskViewState();
 }
 
 class _AddTaskViewState extends State<AddTaskView> {
@@ -48,6 +46,7 @@ class _AddTaskViewState extends State<AddTaskView> {
   int completedCompare = 0;
 
   String buttonText = 'Agregar Task';
+  String titleBar = 'Crea un nuevo Task';
 
   String titleCompare = '';
   String descriptionCompare = '';
@@ -80,7 +79,8 @@ class _AddTaskViewState extends State<AddTaskView> {
       
     WidgetsBinding.instance.addPostFrameCallback((_) async { 
       if(!widget.isAdd){
-        buttonText = 'Editar Task';
+        buttonText = 'Actualizar Task';
+        titleBar = 'Detalles del Task';
         task = await getDataController.getTask(
           task: widget.task!,
         );
@@ -97,13 +97,25 @@ class _AddTaskViewState extends State<AddTaskView> {
         dateCompare = task.dueDate ?? '';
         tagsCompare = task.tags ?? '';
         completedCompare = task.isCompleted;
+
+        title = task.title;
+        description = task.description ?? '';
+        comments = task.comments ?? '';
+        date = task.dueDate ?? '';
+        tags = task.tags ?? '';
         completed = task.isCompleted;
 
-        setState(() {
-          
-        });
+
+        setState(() {});
       }
 
+    });
+
+    focusNodeDate.addListener(() {
+      if(focusNodeDate.hasFocus){
+        datePicker();
+        focusNodeDate.unfocus();
+      }
     });
   }
 
@@ -169,41 +181,82 @@ class _AddTaskViewState extends State<AddTaskView> {
     return null;
   }
 
-  onPressed(){
+  // Metodo para desplegar un DatePicker
+  datePicker(){
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030)
+    ).then((value){
+      if(value != null){
+        date = value.toString().split(' ')[0];
+        dateController.text = date;
+        focusNodeDate.unfocus();
+      }
+    });
+  }
+
+  void onPressed(){
     final FocusScopeNode focus = FocusScope.of(context);
     if (!focus.hasPrimaryFocus && focus.hasFocus) {
       FocusManager.instance.primaryFocus?.unfocus();
-      if(_formKey.currentState!.validate()){
-        if(widget.isAdd){
-          getDataController.addTask(
-            task: Task(
-              token: 'SoteloChopinUlisesShie',
-              isCompleted: 0,
-              title: title,
-              description: description,
-              comments: comments,
-              dueDate: date,
-              tags: tags
-            ),
-            context: context
-          );
-        }else{
-          setState(() => isEditing = false);
-          getDataController.updateTask(
-            task: Task(
-              taskId: task.taskId,
-              token: 'SoteloChopinUlisesShie',
-              isCompleted: completed,
-              title: title,
-              description: description,
-              comments: comments,
-              dueDate: date,
-              tags: tags
-            ),
-            context: context
-          );
+    }
+
+    if(_formKey.currentState!.validate()){
+      if(widget.isAdd){
+        if(date.isEmpty){
+          date = DateTime.now().toString().split(' ')[0];
         }
+        getDataController.addTask(
+          task: Task(
+            token: 'SoteloChopinUlisesShie',
+            isCompleted: completed,
+            title: title,
+            description: description,
+            comments: comments,
+            dueDate: date,
+            tags: tags
+          ),
+          context: context
+        );
+
+        titleController.clear();
+        descriptionController.clear();
+        commentsController.clear();
+        dateController.clear();
+        tagsController.clear();
+        completed = 0;
+        isEditing = false;
+
+      }else{
+
+        
+
+        getDataController.updateTask(
+          task: Task(
+            taskId: task.taskId,
+            token: 'SoteloChopinUlisesShie',
+            isCompleted: completed,
+            title: title,
+            description: description,
+            comments: comments,
+            dueDate: date,
+            tags: tags
+          ),
+          context: context
+        );
+
+        titleCompare = title;
+        descriptionCompare = description;
+        commentsCompare = comments;
+        dateCompare = date;
+        tagsCompare = tags;
+        completedCompare = completed;
+
       }
+      getDataController.listChange.value = true;
+      setState(() {});
     }
 
   }
@@ -218,7 +271,33 @@ class _AddTaskViewState extends State<AddTaskView> {
   Widget build(BuildContext context) {
     _getScreenSize();
     return Scaffold(
-      appBar: widget.isAdd ? null: AppBar(),
+      appBar: AppBar(
+        title: Text(titleBar),
+        actions: [
+          if(!widget.isAdd)
+            IconButton(
+              onPressed: () async {
+                getDataController.isLoading.value = true;
+                await getDataController.deleteTask(
+                  task: task,
+                  context: context
+                );
+                getDataController.isLoading.value = false;
+                getDataController.listChange.value = true;
+
+                titleController.clear();
+                descriptionController.clear();
+                commentsController.clear();
+                dateController.clear();
+                tagsController.clear();
+                completed = 0;
+
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.delete),
+            )
+        ],
+      ),
       body: SafeArea(
         child: Stack(
           alignment: Alignment.center,
@@ -356,35 +435,9 @@ class _AddTaskViewState extends State<AddTaskView> {
               sizeBetween(height),
               Row(
                 children: [
-                  Flexible(child: formDate()),
+                  formDate(),
                   const SizedBox(width: 10,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '¿Completada?', 
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.blue[800],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Checkbox(
-                        value: completed == 1,
-                        activeColor: Colors.blue[600],
-                        onChanged: (value){
-                          setState(() {
-                            completed = value! ? 1 : 0;
-                            if(completed != completedCompare){
-                              isEditing = true;
-                            }else{
-                              isEditing = false;
-                            }
-                          });
-                        },
-                      )
-                    ],
-                  )
+                  checkCompleted(),
                 ],
               ),
               sizeBetween(height),
@@ -433,12 +486,56 @@ class _AddTaskViewState extends State<AddTaskView> {
   }
 
   Widget formDate(){
-    return InputComponent(
-      controller: dateController,
-      focusNode: focusNodeDate,
-      onChanged: onChangedDate,
-      label: 'Fecha',
-      hintText: '(Opcional)',
+    return Flexible(
+      child: InputComponent(
+        controller: dateController,
+        focusNode: focusNodeDate,
+        onChanged: onChangedDate,
+        label: 'Fecha',
+        hintText: '(Opcional)',
+      ),
+    );
+  }
+
+  Widget checkCompleted(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        InkWell(
+          onTap: (){
+            setState(() {
+              completed = completed == 1 ? 0 : 1;
+              if(completed != completedCompare){
+                isEditing = true;
+              }else{
+                isEditing = false;
+              }
+            });
+          },
+          child: Text(
+            '¿Completada?', 
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.blue[800],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Checkbox(
+          value: completed == 1,
+          activeColor: Colors.blue[600],
+          onChanged: (value){
+            setState(() {
+              completed = value! ? 1 : 0;
+              if(completed != completedCompare){
+                isEditing = true;
+              }else{
+                isEditing = false;
+              }
+            });
+          },
+        )
+      ],
     );
   }
 
@@ -454,7 +551,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   Widget formButton(){
     return ElevatedButton(
-      onPressed: isEditing ? onPressed : null,
+      onPressed: isEditing || widget.isAdd ? onPressed : null,
       child:  Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 15),
         child: Text(

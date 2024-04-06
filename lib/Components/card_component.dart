@@ -15,16 +15,15 @@ class CardComponent extends StatelessWidget {
   final void Function() onDelete;
 
   /// function to edit the task
-  final void Function(BuildContext)? onEdit;
 
-  /// function to go to the task details
-
+  /// function for the onClosed event
+  final void Function(Never?)? onClosed;
 
   const CardComponent({
     required this.task,
     required this.check,
     required this.onDelete,
-    required this.onEdit,
+    required this.onClosed,
     Key? key 
   }) : super(key: key);
 
@@ -37,8 +36,8 @@ class CardComponent extends StatelessWidget {
         vertical: 2
       ),
       child: OpenContainer(
-        transitionDuration: const Duration(milliseconds: 500),
-        transitionType: ContainerTransitionType.fadeThrough,
+        transitionDuration: const Duration(seconds: 1),
+        onClosed: onClosed,
         openElevation: 0,
         middleColor: Colors.white,
         closedColor: Colors.transparent,
@@ -47,6 +46,7 @@ class CardComponent extends StatelessWidget {
           return slidableCard(
             taskId: task.taskId!, 
             onTap: openContainer,
+            onEdit: (context) => openContainer(),
             child: cardTask( 
               title: task.title, 
               description: task.dueDate ?? 'Sin descripción', 
@@ -65,6 +65,7 @@ class CardComponent extends StatelessWidget {
   Widget slidableCard({
     required int taskId,
     required void Function()? onTap,
+    required void Function(BuildContext)? onEdit,
     required Widget child
   }){
     return InkWell(
@@ -72,46 +73,36 @@ class CardComponent extends StatelessWidget {
       child: Slidable(
         // Specify a key if the Slidable is dismissible.
         key: Key(taskId.toString()),
-        endActionPane: ActionPane(
-          // A motion is a widget used to control how the pane animates.
-          motion: const StretchMotion(),
-          // All actions are defined in the children parameter.
-          children: [
-            // A SlidableAction can have an icon and/or a label.
-            SlidableAction(
-              onPressed: onEdit,
-              borderRadius: BorderRadius.circular(20),
-              backgroundColor: Colors.green[400]!,
-              foregroundColor: Colors.white,
-              flex: 2,
-              icon: Icons.edit,
-            ),
-          ],
-        ),
+        
+        endActionPane: actionPane(),
 
         // The start action pane is the one at the left or the top side.
-        startActionPane: ActionPane(
-          // A motion is a widget used to control how the pane animates.
-          motion: const StretchMotion(),
-
-          // A pane can dismiss the Slidable.
-          dismissible: DismissiblePane(onDismissed: onDelete),
-      
-          // All actions are defined in the children parameter.
-          children: [
-            // A SlidableAction can have an icon and/or a label.
-            SlidableAction(
-              onPressed: null,
-              borderRadius: BorderRadius.circular(20),
-              backgroundColor: const Color(0xFFFE4A49),
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-            ),
-          ],
-        ),
+        startActionPane: actionPane(),
 
         child: child,
       ),
+    );
+  }
+
+  actionPane(){
+    return ActionPane(
+      // A motion is a widget used to control how the pane animates.
+      motion: const StretchMotion(),
+
+      // A pane can dismiss the Slidable.
+      dismissible: DismissiblePane(onDismissed: onDelete),
+  
+      // All actions are defined in the children parameter.
+      children: [
+        // A SlidableAction can have an icon and/or a label.
+        SlidableAction(
+          onPressed: null,
+          borderRadius: BorderRadius.circular(20),
+          backgroundColor: const Color(0xFFFE4A49),
+          foregroundColor: Colors.white,
+          icon: Icons.delete,
+        ),
+      ],
     );
   }
 

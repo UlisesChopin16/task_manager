@@ -1,22 +1,25 @@
-import 'dart:isolate';
-
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:task_manager/Components/card_component.dart';
 import 'package:task_manager/Controllers/task_controller.dart';
 import 'package:task_manager/Models/task_model.dart';
+import 'package:task_manager/Views/add_task_view.dart';
+
+final pageBucket = PageStorageBucket();
 
 class TasksView extends StatefulWidget {
   const TasksView({ Key? key }) : super(key: key);
 
   @override
-  _TasksViewState createState() => _TasksViewState();
+  State<TasksView> createState() => _TasksViewState();
 }
 
 class _TasksViewState extends State<TasksView> {
 
 
-  final getDataController = Get.put(TaskController());
+  final  getDataController = Get.put(TaskController());
 
   bool isCompleted = false;
 
@@ -27,69 +30,44 @@ class _TasksViewState extends State<TasksView> {
   double? right = 15;
   double? left;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   getDataController.addTask(
-    //     task: Task(
-    //       token: 'SoteloChopinUlisesShie',
-    //       title: 'Obtener mensaje',
-    //       isCompleted: 1,
-    //       dueDate: DateTime.now().toString().split(' ')[0],
-    //       comments: '',
-    //       description: 'Obtener el mensaje de confirmacion',
-    //       tags: '',
-    //     ),
-    //     context: context
-    //   ); 
-    // });
-
-    // getDataController.updateTask(
-    //   task: Task(
-    //     taskId: 1913,
-    //     token: 'SoteloChopinUlisesShie',
-    //     title: 'Actualizar task',
-    //     isCompleted: 1,
-    //     dueDate: DateTime.now().toString().split(' ')[0],
-    //     comments: '',
-    //     description: 'Actualizar task',
-    //     tags: '',
-    //   )
-    // );
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   getDataController.deleteTask(
-    //     task: Task(
-    //       taskId: 1921,
-    //       token: 'SoteloChopinUlisesShie',
-    //       title: 'Actualizar task',
-    //       isCompleted: 1,), 
-    //     context: context
-    //   );
-    // });
-    
-
     getDataController.getTasks(token: 'SoteloChopinUlisesShie');
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+
+  void onClosed(never){
+    if(getDataController.listChange.value){
+      getDataController.getTasks(token: 'SoteloChopinUlisesShie');
+      getDataController.listChange.value = false;
+    }
   }
 
   onDelete(int index, Task task) async {
     await getDataController.deleteTask(task: task, context: context);
 
     getDataController.getDataModelTask.value.tasks.removeAt(index);
+    getDataController.getDataModelTask.refresh();
+    // setState(() {});
   }
 
-  void onEdit(BuildContext context){
-    print('Edit');
-  }
-
-  void onDetails(Task task, int index){
-    getDataController.getTask(task: task);
-  }
 
   // metodo para obtener el ancho y el largo de la pantalla
   void _getScreenSize(){
-    _width = MediaQuery.of(context).size.width;
-    _height = MediaQuery.of(context).size.height;
+    setState(() {
+      _width = MediaQuery.of(context).size.width;
+      _height = MediaQuery.of(context).size.height;
+    });
+
   }
 
   @override
@@ -97,11 +75,7 @@ class _TasksViewState extends State<TasksView> {
     _getScreenSize();
     return Obx(
       ()=> Scaffold(
-        floatingActionButton: FloatingActionButton.large(
-          backgroundColor: Colors.blue[900],
-          onPressed: (){},
-          child: const Icon(Icons.add),
-        ),
+        floatingActionButton: floatingActionButton(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         body: SafeArea(
           child: Stack(
@@ -131,6 +105,24 @@ class _TasksViewState extends State<TasksView> {
           ),
         ),
       ),
+    );
+  }
+
+  floatingActionButton() {
+    return OpenContainer(
+      transitionDuration: const Duration(seconds: 1),
+      onClosed: onClosed,
+      closedShape: const CircleBorder(),
+      closedBuilder: (context, action){
+        return FloatingActionButton.large(
+          backgroundColor: Colors.blue[900],
+          onPressed: action,
+          child: const Icon(Icons.add),
+        );
+      },
+      openBuilder: (context, action){
+        return const AddTaskView(isAdd: true,);
+      },
     );
   }
 
@@ -252,32 +244,45 @@ class _TasksViewState extends State<TasksView> {
   listTasks(){
     return Obx(
       () => Expanded(
-        child: getDataController.isLoading.value ? const Center(child: CircularProgressIndicator(),) : ListView.builder(
-          padding: const EdgeInsets.only(bottom: 100),
-          itemCount: getDataController.getDataModelTask.value.tasks.length,
-          itemBuilder: (context, index){
-            final task = getDataController.getDataModelTask.value.tasks[index];
-            task.token = 'SoteloChopinUlisesShie';
-            return CardComponent(
-              task: task,
-              onDelete:()=> onDelete(index,task),
-              onEdit: (context)=> onEdit(context),
-              check: cardCheckCompleted(task),
-            );
-          },
+        child: getDataController.isLoading.value ? const Center(child: CircularProgressIndicator(),) : 
+        PageStorage(
+          bucket: pageBucket,
+          child: ListView.builder(
+            key: const PageStorageKey('tasks'),
+            controller: _scrollController,
+            padding: const EdgeInsets.only(bottom: 100),
+            itemCount: getDataController.getDataModelTask.value.tasks.length,
+            itemBuilder: (context, index){
+              final task = getDataController.getDataModelTask.value.tasks[index];
+              task.token = 'SoteloChopinUlisesShie';
+              return CardComponent(
+                task: task,
+                onClosed: (never)=> onClosed(never),
+                onDelete:()=> onDelete(index,task),
+                check: cardCheckCompleted(task,index),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  cardCheckCompleted(Task task){
+  cardCheckCompleted(Task task, int index){
+
     return IconButton(
       padding: const EdgeInsets.only(left: 15),
-      onPressed: (){
-        setState(() {
-          task.isCompleted = task.isCompleted == 0 ? 1 : 0;
-        });
-        getDataController.updateTask(task: task, context: context);
+      onPressed: () async {
+
+        getDataController.getDataModelTask.value.tasks[index] = await getDataController.getTask(task: task);
+
+        task = getDataController.getDataModelTask.value.tasks[index];
+
+        task.isCompleted = task.isCompleted == 0 ? 1 : 0;
+
+        if(!context.mounted) return;
+        await getDataController.updateTask(task: task, context: context);
+        setState(() {});
       },
       icon: Icon(
         task.isCompleted > 0 ? Icons.check_circle : Icons.check_circle_outline,
@@ -287,5 +292,6 @@ class _TasksViewState extends State<TasksView> {
     );
   }
 
+  
 
 }

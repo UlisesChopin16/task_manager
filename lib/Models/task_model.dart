@@ -12,11 +12,11 @@ class GetModelTasks {
     });
 
     factory GetModelTasks.fromJson(Map<String, dynamic> json) => GetModelTasks(
-        tasks: List<Task>.from(json["Tasks"].map((x) => Task.fromJson(x))),
+        tasks: List<Task>.from(json["task"].map((x) => Task.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
-        "Tasks": List<dynamic>.from(tasks.map((x) => x.toJson())),
+        "task": List<dynamic>.from(tasks.map((x) => x.toJson())),
     };
 }
 
