@@ -13,6 +13,15 @@ class _PrincipalViewState extends State<PrincipalView> {
 
   double _width = 0.0;
   double _height = 0.0;
+
+  List<Color> colors = [
+    Colors.blue[300]!,
+    Colors.green[600]!,
+    Colors.red[700]!,
+    Colors.yellow[900]!,
+    Colors.purple[900]!,
+  ];
+
   // metodo para obtener el ancho y el largo de la pantalla
   void _getScreenSize(){
     _width = MediaQuery.of(context).size.width;
@@ -30,6 +39,7 @@ class _PrincipalViewState extends State<PrincipalView> {
             taskIcon(),
             circle1(),
             circle2(),
+            circle3(),
             Positioned(
               width: _width,
               height: _height,
@@ -58,7 +68,7 @@ class _PrincipalViewState extends State<PrincipalView> {
       child: Image.asset(
         'assets/images/task_icon.png',
         width: 150,
-        color: Colors.blue[200],
+        color: colors[0],
         fit: BoxFit.fitWidth,
       ),
     );
@@ -66,12 +76,12 @@ class _PrincipalViewState extends State<PrincipalView> {
 
   circle1() {
     return Positioned(
-      top: _height * 0.45,
-      right: 0,
+      top: _height * 0.2,
+      left: 0,
       child: Image.asset(
         'assets/images/circulo.png',
         width: 150,
-        color: Colors.blue[100],
+        color: colors[1],
         fit: BoxFit.fitWidth,
       ),
     );
@@ -79,12 +89,25 @@ class _PrincipalViewState extends State<PrincipalView> {
 
   circle2() {
     return Positioned(
+      top: _height * 0.5,
+      right: 0,
+      child: Image.asset(
+        'assets/images/circulo.png',
+        width: 150,
+        color: colors[2],
+        fit: BoxFit.fitWidth,
+      ),
+    );
+  }
+
+  circle3() {
+    return Positioned(
       bottom: -100,
       left: -60,
       child: Image.asset(
         'assets/images/circulo.png',
         width: 280,
-        color: Colors.blue[50],
+        color: colors[3],
         fit: BoxFit.fitWidth,
       ),
     );
@@ -96,7 +119,7 @@ class _PrincipalViewState extends State<PrincipalView> {
       style: TextStyle(
         fontSize: 30,
         fontWeight: FontWeight.bold,
-        color: Colors.blue[900]
+        color: colors[4]
       ),
     );
   }
@@ -106,7 +129,7 @@ class _PrincipalViewState extends State<PrincipalView> {
       'Organiza tus tareas de forma sencilla',
       style: TextStyle(
         fontSize: 20,
-        color: Colors.blue[900]
+        color: colors[4]
       ),
     );
   }
@@ -122,7 +145,7 @@ class _PrincipalViewState extends State<PrincipalView> {
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
-        foregroundColor: Colors.blue[900],
+        foregroundColor: colors[4],
         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
         textStyle: const TextStyle(
           fontSize: 24,

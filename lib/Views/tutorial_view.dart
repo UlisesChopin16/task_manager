@@ -29,30 +29,43 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
 
   int index = 0;
 
+  List<Color> colors = [
+    Colors.blue[900]!,
+    Colors.red[900]!,
+    Colors.yellow[900]!,
+    Colors.green[900]!,
+    Colors.purple[900]!,
+  ];
+
   late List<Widget> cards = [
       card(
+        color: colors[0],
         index: index,
         title: 'Eliminar tarea 1',
         message: 'Desliza por completo la tarjeta de izquierda a derecha o de derecha a izquierda para eliminar una tarea',
         
       ),
       card(
+        color: colors[1],
         index: index,
         slidableController: slidableController,
         title: 'Eliminar tarea 2',
         message: 'Desliza solo un poco la tarjeta de izquierda a derecha o de derecha a izquierda y pulsa el icono de la papelera para eliminar una tarea',
       ),
       card(
+        color: colors[2],
         index: index,
         title: 'Completar tarea',
         message: 'Toca el icono el icono con la palomita para marcar una tarea como completada o pendiente',
       ),
       card(
+        color: colors[3],
         index: index,
         title: 'Ver detalles',
         message: 'Toca la tarjeta para ver los detalles de la tarea',
       ),
       card(
+        color: colors[4],
         index: 4,
         title: 'Agregar tarea',
         message: 'Toca este botón para agregar una nueva tarea',
@@ -136,11 +149,13 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
     required String title,
     required String message,
     required int index,
+    required Color color,
     int? isCompleted,
     SlidableController? slidableController,
   }){
     return CardTutorial(
       key: UniqueKey(),
+      color: color,
       index: index,
       slidableController: slidableController,
       check: cardCheckCompleted(),
@@ -159,7 +174,7 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: Colors.blue[900],
+              foregroundColor: colors[index],
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               textStyle: const TextStyle(
                 fontSize: 18,
@@ -181,7 +196,7 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[900],
+              backgroundColor: colors[index],
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               textStyle: const TextStyle(
@@ -227,7 +242,7 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
         },
         icon: Icon(
           getDataController.isCompleted.value > 0 ? Icons.check_circle : Icons.check_circle_outline,
-          color: getDataController.isCompleted.value > 0 ? Colors.green : Colors.blue[800],
+          color: getDataController.isCompleted.value > 0 ? Colors.green : Colors.black,
           size: 35,
         ),
       ),
@@ -236,6 +251,8 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
 }
 
 class CardTutorial extends StatelessWidget {
+
+  final Color color;
 
   final int index;
 
@@ -255,6 +272,7 @@ class CardTutorial extends StatelessWidget {
     required this.confirmDismiss,
     required this.title,
     required this.message,
+    required this.color,
     this.slidableController,
 
     Key? key 
@@ -297,6 +315,7 @@ class CardTutorial extends StatelessWidget {
                             else
                             CardComponent(
                               slidableController: slidableController,
+                              color: color,
                               task: Task(
                                 taskId: index,
                                 title: title,
@@ -325,7 +344,7 @@ class CardTutorial extends StatelessWidget {
                           message,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.blue[900],
+                            color: color,
                             fontSize: 22
                           ),
                         ),
@@ -353,14 +372,14 @@ class CardTutorial extends StatelessWidget {
     return Image.asset(
       'assets/images/task_icon.png',
       width: wd /1.5,
-      color:  Colors.blue[200]!.withOpacity(0.14),
+      color:  color.withOpacity(0.1),
       fit: BoxFit.fitWidth,
     );
   }
 
   floatingActionButton() {
     return FloatingActionButton.large(
-      backgroundColor: Colors.blue[900],
+      backgroundColor: color,
       onPressed: (){},
       child: const Icon(Icons.add),
     );

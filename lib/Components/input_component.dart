@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 class InputComponent extends StatelessWidget {
 
+  final bool? isRequired;
+
+  final Color color;
+
   final FocusNode? focusNode;
 
   final int maxLines;
@@ -21,6 +25,8 @@ class InputComponent extends StatelessWidget {
     required this.label,
     required this.hintText,
     required this.controller,
+    required this.color,
+    this.isRequired = false,
     this.helperText,
     this.validator,
     this.onChanged,
@@ -40,14 +46,27 @@ class InputComponent extends StatelessWidget {
               FocusScope.of(context).requestFocus(focusNode);
             }
           },
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.blue[800],
-              fontWeight: FontWeight.bold,
-            )
-          ),
+          child: RichText(
+            text: TextSpan(
+              text: label,
+              style: TextStyle(
+                color: color,
+                fontSize: 20,
+                fontWeight: FontWeight.bold
+              ),
+              children: [
+                if(isRequired!)
+                const TextSpan(
+                  text: '*',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                  )
+                )
+              ]
+            ),
+          )
         ),
         TextFormField(
           controller: controller,
@@ -64,11 +83,11 @@ class InputComponent extends StatelessWidget {
             ),
             helperText: helperText,
             helperStyle: TextStyle(
-              color: Colors.blue[900]
+              color: color
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                color: Colors.blue[900]!,
+                color: color,
               )
             )
           ),

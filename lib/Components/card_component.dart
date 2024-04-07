@@ -9,6 +9,8 @@ class CardComponent extends StatelessWidget {
 
   final bool isEnable;
 
+  final Color color;
+
   /// put the taskId of the task
   final Task task;
 
@@ -35,6 +37,7 @@ class CardComponent extends StatelessWidget {
     required this.onClosed,
     required this.confirmDelete,
     required this.isEnable,
+    required this.color,
     this.slidableController,
     
     Key? key 
@@ -68,7 +71,7 @@ class CardComponent extends StatelessWidget {
           );
         },
         openBuilder: (context, closeContainer){
-          return AddTaskView(isAdd: false, task: task,);
+          return AddTaskView(isAdd: false, task: task, color: color,);
         },
       ),
     );
@@ -132,9 +135,13 @@ class CardComponent extends StatelessWidget {
   ){
     return Card(
       elevation: 3.5,
-      color: Colors.blue[50]!,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20)
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: color,
+          width: 2
+        )
       ),
       child: Padding(
         padding: const EdgeInsets.only(
@@ -194,7 +201,7 @@ class CardComponent extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         fontSize: fontSize,
-        color: Colors.blue[800],
+        color: color,
       ),
     );
   }

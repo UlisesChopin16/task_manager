@@ -8,10 +8,13 @@ class AddTaskView extends StatefulWidget {
 
   final bool isAdd;
 
+  final Color color;
+
   final Task? task;
 
   const AddTaskView({ 
     required this.isAdd,
+    required this.color,
     this.task,
     Key? key 
   }) : super(key: key);
@@ -188,6 +191,7 @@ class _AddTaskViewState extends State<AddTaskView> {
   // Metodo para desplegar un DatePicker
   datePicker(){
     showDatePicker(
+      barrierColor: widget.color,
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
@@ -254,7 +258,7 @@ class _AddTaskViewState extends State<AddTaskView> {
             borderRadius: BorderRadius.circular(20)
           ),
           titleTextStyle:  TextStyle(
-            color: Colors.blue[900],
+            color: widget.color,
             fontSize: 20, 
           ),
           title: Text(titleDialog),
@@ -263,11 +267,21 @@ class _AddTaskViewState extends State<AddTaskView> {
               onPressed: (){
                 Navigator.pop(context,);
               }, 
-              child: const Text('Cancelar')
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: widget.color
+                ),
+              )
             ),
             TextButton(
               onPressed: onPressedDialog, 
-              child: Text(textButtonDialog)
+              child: Text(
+                textButtonDialog,
+                style: TextStyle(
+                  color: widget.color
+                ),
+              )
             )
           ],
         );
@@ -365,6 +379,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     _getScreenSize();
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: widget.color,
         title: Text(titleBar),
         centerTitle: true,
         actions: [
@@ -395,7 +410,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     return Image.asset(
       'assets/images/task_icon.png',
       width: wd /1.5,
-      color:  Colors.blue[200]!.withOpacity(0.14),
+      color:  widget.color.withOpacity(0.03),
       fit: BoxFit.fitWidth,
     );
   }
@@ -407,7 +422,7 @@ class _AddTaskViewState extends State<AddTaskView> {
       child: Image.asset(
         'assets/images/circulo.png',
         width: 200,
-        color: Colors.blue[600],
+        color: widget.color.withOpacity(0.9),
         fit: BoxFit.fitWidth,
       ),
     );
@@ -420,7 +435,7 @@ class _AddTaskViewState extends State<AddTaskView> {
       child: Image.asset(
         'assets/images/circulo.png',
         width: 200,
-        color: Colors.blue[400],
+        color: widget.color.withOpacity(0.7),
         fit: BoxFit.fitWidth,
       ),
     );
@@ -433,7 +448,7 @@ class _AddTaskViewState extends State<AddTaskView> {
       child: Image.asset(
         'assets/images/circulo.png',
         width: 280,
-        color: Colors.blue[200],
+        color: widget.color.withOpacity(0.5),
         fit: BoxFit.fitWidth,
       ),
     );
@@ -532,6 +547,8 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   Widget formTitle(){
     return InputComponent(
+      isRequired: true,
+      color: widget.color,
       controller: titleController,
       focusNode: focusNodeTitle,
       onChanged: onChangedTitle,
@@ -544,6 +561,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   Widget formDescription(){
     return InputComponent(
+      color: widget.color,
       controller: descriptionController,
       focusNode: focusNodeDescription,
       onChanged: onChangedDescription,
@@ -555,6 +573,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   Widget formComments(){
     return InputComponent(
+      color: widget.color,
       controller: commentsController,
       focusNode: focusNodeComments,
       onChanged: onChangedComments,
@@ -567,6 +586,7 @@ class _AddTaskViewState extends State<AddTaskView> {
   Widget formDate(){
     return Flexible(
       child: InputComponent(
+        color: widget.color,
         controller: dateController,
         focusNode: focusNodeDate,
         onChanged: onChangedDate,
@@ -595,14 +615,17 @@ class _AddTaskViewState extends State<AddTaskView> {
             '¿Completada?', 
             style: TextStyle(
               fontSize: 20,
-              color: Colors.blue[800],
+              color: widget.color,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         Checkbox(
           value: completed == 1,
-          activeColor: Colors.blue[600],
+          activeColor: widget.color,
+          side: const BorderSide(
+            width: 2
+          ),
           onChanged: (value){
             setState(() {
               completed = value! ? 1 : 0;
@@ -620,6 +643,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   Widget formTags(){
     return InputComponent(
+      color: widget.color,
       controller: tagsController,
       focusNode: focusNodeTags ,
       onChanged: onChangedTags,
@@ -630,6 +654,13 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   Widget formButton(){
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: widget.color,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+        )
+      ),
       onPressed: isEditing || widget.isAdd ? onPressed : null,
       child:  Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 15),

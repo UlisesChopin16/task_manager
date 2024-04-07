@@ -18,7 +18,7 @@ class TasksView extends StatefulWidget {
 
 class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
 
-   List<SlidableController> slidableControllers = [];
+  List<SlidableController> slidableControllers = [];
 
   final  getDataController = Get.put(TaskController());
 
@@ -30,6 +30,16 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
   double top = 0;
   double? right = 15;
   double? left;
+  
+  List<Color> colors = [
+    Colors.blue[900]!,
+    Colors.red[900]!,
+    Colors.yellow[900]!,
+    Colors.green[900]!,
+    Colors.purple[900]!,
+  ];
+
+  int count = 0;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -60,7 +70,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
     getDataController.getDataModelTask.refresh();
   }
 
-  Future<bool> confirmDismiss() async {
+  Future<bool> confirmDismiss(int index) async {
     return await showDialog(
       barrierDismissible: false,
       context: context,
@@ -70,7 +80,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
             borderRadius: BorderRadius.circular(20)
           ),
           titleTextStyle:  TextStyle(
-            color: Colors.blue[900],
+            color: colors[index],
             fontSize: 20, 
           ),
           title: const Text('¿Estás seguro de eliminar la tarea?'),
@@ -79,13 +89,25 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
               onPressed: (){
                 Navigator.pop(context, false);
               }, 
-              child: const Text('Cancelar')
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: colors[index],
+                  fontWeight: FontWeight.bold
+                ),
+              )
             ),
             TextButton(
               onPressed: (){
                 Navigator.pop(context, true);
               }, 
-              child: const Text('Eliminar')
+              child: Text(
+                'Eliminar',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: colors[index]
+                ),
+              )
             )
           ],
         );
@@ -93,8 +115,8 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
     );
   } 
 
-  void confirmDelete(int index, Task task) async {
-    bool response = await confirmDismiss();
+  void confirmDelete(int index, Task task, int count) async {
+    bool response = await confirmDismiss(count);
     if(response){
       slidableControllers[index].dismiss(
         ResizeRequest(const Duration(milliseconds: 300), () { }),
@@ -158,13 +180,13 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
       closedShape: const CircleBorder(),
       closedBuilder: (context, action){
         return FloatingActionButton.large(
-          backgroundColor: Colors.blue[900],
+          backgroundColor: colors[4],
           onPressed: action,
           child: const Icon(Icons.add),
         );
       },
       openBuilder: (context, action){
-        return const AddTaskView(isAdd: true,);
+        return AddTaskView(isAdd: true, color: colors[0]);
       },
     );
   }
@@ -190,7 +212,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
-                    color: Colors.blue[300]
+                    color: colors[2]
                   ),
                 ),
               )
@@ -221,7 +243,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
     return Image.asset(
       'assets/images/task_icon.png',
       width: isEmpty ? 150 : 80,
-      color: isEmpty ? Colors.blue[200]!.withOpacity(0.5) : Colors.white,
+      color: isEmpty ? colors[2].withOpacity(0.5) : Colors.white,
       fit: BoxFit.fitWidth,
     );
   }
@@ -233,7 +255,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
       child: Image.asset(
         'assets/images/circulo.png',
         width: 200,
-        color: Colors.blue[600],
+        color: colors[1],
         fit: BoxFit.fitWidth,
       ),
     );
@@ -247,7 +269,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
         child: getDataController.getDataModelTask.value.tasks.isEmpty ? const SizedBox() : Image.asset(
           'assets/images/circulo.png',
           width: 200,
-          color: Colors.blue[400],
+          color: colors[2],
           fit: BoxFit.fitWidth,
         ),
       ),
@@ -261,7 +283,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
       child: Image.asset(
         'assets/images/circulo.png',
         width: 280,
-        color: Colors.blue[200],
+        color: colors[3],
         fit: BoxFit.fitWidth,
       ),
     );
@@ -299,14 +321,19 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
               final task = getDataController.getDataModelTask.value.tasks[index];
               task.token = 'SoteloChopinUlisesShie';
               slidableControllers.add(SlidableController(this));
+          
+              int maxColors = colors.length;
+              int count = index % maxColors;
+          
               return CardComponent(
                 slidableController: slidableControllers[index],
                 task: task,
+                color: colors[count],
                 isEnable: true,
                 onClosed: (never)=> onClosed(never),
                 onDelete:()=> onDelete(index,task),
-                confirmDismiss: confirmDismiss,
-                confirmDelete: (context)=> confirmDelete(index, task),
+                confirmDismiss: ()=> confirmDismiss(count),
+                confirmDelete: (context)=> confirmDelete(index, task, count),
                 check: cardCheckCompleted(task,index),
               );
             },
@@ -334,7 +361,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
       },
       icon: Icon(
         task.isCompleted > 0 ? Icons.check_circle : Icons.check_circle_outline,
-        color: task.isCompleted > 0 ? Colors.green : Colors.blue[800],
+        color: task.isCompleted > 0 ? Colors.green : Colors.black,
         size: 35,
       ),
     );
