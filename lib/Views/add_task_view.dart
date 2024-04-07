@@ -215,6 +215,11 @@ class _AddTaskViewState extends State<AddTaskView> {
       if(value != null){
         date = value.toString().split(' ')[0];
         dateController.text = date;
+        if(date != dateCompare){
+          isEditing = true;
+        }else{
+          isEditing = false;
+        }
         focusNodeDate.unfocus();
       }
     });
