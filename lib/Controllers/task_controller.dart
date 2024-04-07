@@ -97,7 +97,7 @@ class TaskController extends GetxController{
     }
   }
 
-  // metodo para obtener la lista de Tareas
+  // metodo para obtener la Tarea
   Future<Task> getTask({
     required Task task,
   }) async {

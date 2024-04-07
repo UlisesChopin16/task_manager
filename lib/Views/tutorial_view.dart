@@ -37,6 +37,7 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
     Colors.purple[900]!,
   ];
 
+  // list of the cards that will be displayed in the tutorial
   late List<Widget> cards = [
       card(
         color: colors[0],
@@ -171,61 +172,69 @@ class _TutorialViewState extends State<TutorialView> with TickerProviderStateMix
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: colors[index],
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              textStyle: const TextStyle(
-                fontSize: 18,
-              ),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
-              )
-            ),
-            onPressed: (){
-              setState(() {
-                isReverse = false;
-                index = index > 0 ? index - 1 : 0;
-              });
-            },
-            child: const Text(
-              'Atrás'
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colors[index],
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              textStyle: const TextStyle(
-                fontSize: 18,
-              ),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
-              )
-            ),
-            onPressed: (){
-              setState(() {
-                isReverse = true;
-                if(index < 4){
-                  index++;
-                }else{
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const TasksView()
-                    ),
-                  );
-                }
-              });
-            },
-            child: Text(
-              index == 4 ? 'Finalizar' : 'Siguiente'
-            ),
-          )
+          backButton(),
+          nextButton(),
         ],
+      ),
+    );
+  }
+
+  backButton(){
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: colors[index],
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        textStyle: const TextStyle(
+          fontSize: 18,
+        ),
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      onPressed: (){
+        setState(() {
+          isReverse = false;
+          index = index > 0 ? index - 1 : 0;
+        });
+      },
+      child: const Text(
+        'Atrás'
+      ),
+    );
+  }
+
+  nextButton(){
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: colors[index],
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        textStyle: const TextStyle(
+          fontSize: 18,
+        ),
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      onPressed: (){
+        setState(() {
+          isReverse = true;
+          if(index < 4){
+            index++;
+          }else{
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const TasksView()
+              ),
+            );
+          }
+        });
+      },
+      child: Text(
+        index == 4 ? 'Finalizar' : 'Siguiente'
       ),
     );
   }
@@ -306,55 +315,63 @@ class CardTutorial extends StatelessWidget {
                   height: height,
                   child: Column(
                     children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if(index == 4)
-                            floatingActionButton()
-                            else
-                            CardComponent(
-                              slidableController: slidableController,
-                              color: color,
-                              task: Task(
-                                taskId: index,
-                                title: title,
-                                isCompleted: 0,
-                                dueDate: DateTime.now().toString().split(' ')[0],
-                              ),
-                              isEnable: false,
-                              check: check,
-                              onClosed: (never){},
-                              onDelete:(){
-                              },
-                              confirmDismiss: confirmDismiss,
-                              confirmDelete: (context)=> confirmDismiss!(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding:  const EdgeInsets.only(
-                          left: 30.0,
-                          right: 30.0,
-                          bottom: 80.0,
-                          top: 20
-                        ),
-                        child: Text(
-                          message,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: color,
-                            fontSize: 22
-                          ),
-                        ),
-                      ),
+                      exampleCard(),
+                      descriptionCard(),
                     ],
                   ),
                 )
               ],
             );
           }
+        ),
+      ),
+    );
+  }
+
+  exampleCard(){
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if(index == 4)
+          floatingActionButton()
+          else
+          CardComponent(
+            slidableController: slidableController,
+            color: color,
+            task: Task(
+              taskId: index,
+              title: title,
+              isCompleted: 0,
+              dueDate: DateTime.now().toString().split(' ')[0],
+            ),
+            isEnable: false,
+            check: check,
+            onClosed: (never){},
+            onDelete:(){
+            },
+            confirmDismiss: confirmDismiss,
+            confirmDelete: (context)=> confirmDismiss!(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  descriptionCard(){
+    return Padding(
+      padding:  const EdgeInsets.only(
+        left: 30.0,
+        right: 30.0,
+        bottom: 80.0,
+        top: 20
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: color,
+          fontSize: 22
         ),
       ),
     );

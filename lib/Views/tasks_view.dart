@@ -57,6 +57,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
 
 
   void onClosed(never){
+    // if the list change, we get the tasks
     if(getDataController.listChange.value){
       getDataController.getTasks(token: 'SoteloChopinUlisesShie');
       getDataController.listChange.value = false;
@@ -64,13 +65,17 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
   }
 
   onDelete(int index, Task task) async {
+    // we delete the task
     await getDataController.deleteTask(task: task, context: context);
 
+    // we remove the task from the list
     getDataController.getDataModelTask.value.tasks.removeAt(index);
+    // we update the list
     getDataController.getDataModelTask.refresh();
   }
 
   Future<bool> confirmDismiss(int index) async {
+    // we show the dialog to confirm the dismiss
     return await showDialog(
       barrierDismissible: false,
       context: context,
@@ -116,7 +121,9 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
   } 
 
   void confirmDelete(int index, Task task, int count) async {
+    // we get the response of the dialog
     bool response = await confirmDismiss(count);
+    // if the response is true we dismiss the card and delete the task
     if(response){
       slidableControllers[index].dismiss(
         ResizeRequest(const Duration(milliseconds: 300), () { }),
@@ -126,7 +133,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
   }
 
 
-  // metodo para obtener el ancho y el largo de la pantalla
+  // method to get the screen size
   void _getScreenSize(){
     setState(() {
       _width = MediaQuery.of(context).size.width;
@@ -173,6 +180,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
     );
   }
 
+  // we create the floatingActionButton to add a new task
   floatingActionButton() {
     return OpenContainer(
       transitionDuration: const Duration(seconds: 1),
@@ -195,6 +203,7 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
     Widget child = const SizedBox();
     return Obx(
       (){
+        // if the list is empty and the isLoading is false we show the image, text and change the position
         if(getDataController.getDataModelTask.value.tasks.isEmpty && !getDataController.isLoading.value){
           top = _height * 0.3;
           left = _width / 3;
@@ -309,7 +318,10 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
   listTasks(){
     return Obx(
       () => Expanded(
+        // we check if the isLoading is true, we show a CircularProgressIndicator else we show the list of tasks
         child: getDataController.isLoading.value ? const Center(child: CircularProgressIndicator(),) : 
+
+        // with this widget we can save the scroll position
         PageStorage(
           bucket: pageBucket,
           child: ListView.builder(
@@ -318,14 +330,23 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
             padding: const EdgeInsets.only(bottom: 100),
             itemCount: getDataController.getDataModelTask.value.tasks.length,
             itemBuilder: (context, index){
+
+              // we get the task
               final task = getDataController.getDataModelTask.value.tasks[index];
+
+              // we add the token to the task
               task.token = 'SoteloChopinUlisesShie';
+
+              // we add the controller to the list
               slidableControllers.add(SlidableController(this));
-          
+
+              // we get the color of the card, first we get the length of the colors list
               int maxColors = colors.length;
+              // we get the index of the color with the module operator
               int count = index % maxColors;
           
               return CardComponent(
+                // we pass the controller to the card
                 slidableController: slidableControllers[index],
                 task: task,
                 color: colors[count],
@@ -343,23 +364,29 @@ class _TasksViewState extends State<TasksView> with TickerProviderStateMixin{
     );
   }
 
+  // we turn the task to a completed or uncompleted task
   cardCheckCompleted(Task task, int index){
 
     return IconButton(
       padding: const EdgeInsets.only(left: 15),
       onPressed: () async {
-
+        
+        // first we get the task
         getDataController.getDataModelTask.value.tasks[index] = await getDataController.getTask(task: task);
 
+        // we get the task
         task = getDataController.getDataModelTask.value.tasks[index];
 
+        // we change the isCompleted value
         task.isCompleted = task.isCompleted == 0 ? 1 : 0;
 
         if(!context.mounted) return;
+        // we update the task
         await getDataController.updateTask(task: task, context: context);
         setState(() {});
       },
       icon: Icon(
+        // we check if the task is completed or not and change the icon
         task.isCompleted > 0 ? Icons.check_circle : Icons.check_circle_outline,
         color: task.isCompleted > 0 ? Colors.green : Colors.black,
         size: 35,

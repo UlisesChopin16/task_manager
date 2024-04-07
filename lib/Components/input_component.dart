@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 class InputComponent extends StatelessWidget {
 
+  /// if the field is required put true
+  /// if its true the label will have a * at the end
+  /// if its false the label will not have a *
   final bool? isRequired;
 
   final Color color;

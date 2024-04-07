@@ -22,7 +22,7 @@ class _PrincipalViewState extends State<PrincipalView> {
     Colors.purple[900]!,
   ];
 
-  // metodo para obtener el ancho y el largo de la pantalla
+  // method to get the screen size
   void _getScreenSize(){
     _width = MediaQuery.of(context).size.width;
     _height = MediaQuery.of(context).size.height;

@@ -172,7 +172,7 @@ class CardComponent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Titulo
+          // title
           Padding(
             padding: const EdgeInsets.only(top: 30.0),
             child: cardText(
@@ -181,7 +181,7 @@ class CardComponent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-          // Descripcion
+          // description
           cardText(
             text: description, 
             fontSize: 16, 

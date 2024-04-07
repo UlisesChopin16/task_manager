@@ -6,10 +6,13 @@ import 'package:task_manager/Models/task_model.dart';
 
 class AddTaskView extends StatefulWidget {
 
+  /// if its true we shows the interface to add new task
   final bool isAdd;
 
+  /// we obtain the color of the task
   final Color color;
 
+  /// we obtain the task
   final Task? task;
 
   const AddTaskView({ 
@@ -23,6 +26,7 @@ class AddTaskView extends StatefulWidget {
   State<AddTaskView> createState() => _AddTaskViewState();
 }
 
+// we create a enum for to do the actions
 enum TaskAction {add, update, delete}
 
 class _AddTaskViewState extends State<AddTaskView> {
@@ -83,21 +87,27 @@ class _AddTaskViewState extends State<AddTaskView> {
   void initState() {
     super.initState();
     
-      
+    // we add a postFrameCallback to get the task 
     WidgetsBinding.instance.addPostFrameCallback((_) async { 
+      
+      // if its not to add a task we get the task
       if(!widget.isAdd){
         buttonText = 'Actualizar Task';
         titleBar = 'Detalles del Task';
+
+        // we obtain the task
         task = await getDataController.getTask(
           task: widget.task!,
         );
 
+        // we show the details of task in the interface
         titleController.text = task.title;
         descriptionController.text = task.description ?? '';
         commentsController.text = task.comments ?? '';
         dateController.text = task.dueDate ?? '';
         tagsController.text = task.tags ?? ''; 
 
+        // we assign the values to the variables to compare the changes
         titleCompare = task.title;
         descriptionCompare = task.description ?? '';
         commentsCompare = task.comments ?? '';
@@ -105,6 +115,7 @@ class _AddTaskViewState extends State<AddTaskView> {
         tagsCompare = task.tags ?? '';
         completedCompare = task.isCompleted;
 
+        // we assign the values to the variables to show in the interface
         title = task.title;
         description = task.description ?? '';
         comments = task.comments ?? '';
@@ -120,12 +131,15 @@ class _AddTaskViewState extends State<AddTaskView> {
 
     focusNodeDate.addListener(() {
       if(focusNodeDate.hasFocus){
+        // we show the datePicker
         datePicker();
+        // we remove the focus
         focusNodeDate.unfocus();
       }
     });
   }
 
+  // methods of obtain the value of the fields
   onChangedTitle(String value){
     setState(() {
       title = value;
@@ -181,6 +195,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     });
   }
 
+  // we validate the fields
   String? validatorTitle(String? value){
     if(value!.trim().isEmpty){
       return 'Este campo es obligatorio';
@@ -188,7 +203,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     return null;
   }
 
-  // Metodo para desplegar un DatePicker
+  // method to show datePicker
   datePicker(){
     showDatePicker(
       barrierColor: widget.color,
@@ -205,6 +220,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     });
   }
 
+  // method of the button to add or update the task
   void onPressed()async {
     final FocusScopeNode focus = FocusScope.of(context);
     if (!focus.hasPrimaryFocus && focus.hasFocus) {
@@ -227,6 +243,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   }
 
+  // method to show the dialog of confirm
    confirmDialog(TaskAction action) async {
     String titleDialog = '';
     String textButtonDialog = '';
@@ -368,7 +385,7 @@ class _AddTaskViewState extends State<AddTaskView> {
     Navigator.of(context).pop();
   }
 
-  // metodo para obtener el ancho y el largo de la pantalla
+  // method to get the size of the screen
   void _getScreenSize(){
     _width = MediaQuery.of(context).size.width;
     _height = MediaQuery.of(context).size.height;
