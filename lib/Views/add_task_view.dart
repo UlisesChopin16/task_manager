@@ -206,11 +206,20 @@ class _AddTaskViewState extends State<AddTaskView> {
   // method to show datePicker
   datePicker(){
     showDatePicker(
-      barrierColor: widget.color,
+      barrierDismissible: false,
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime(2030)
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.fromSeed(seedColor: widget.color),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: child!,
+        );
+      }
     ).then((value){
       if(value != null){
         date = value.toString().split(' ')[0];
